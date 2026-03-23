@@ -15,8 +15,8 @@ SOURCES_MAP = {
     ],
     "strategy": [
         {"name": "Sports Betting Market", "url": "https://www.gamblinginsider.com/", "domain": "market_intelligence", "priority": PRIORITY_MEDIUM},
-        {"name": "Sports Analytics World", "url": "https://www.sportsanalyticsworld.com/", "domain": "industry_trends", "priority": PRIORITY_MEDIUM},
-        {"name": "Crunchbase Sports Tech", "url": "https://www.crunchbase.com/hub/sports-technology-companies", "domain": "competitor_analysis", "priority": PRIORITY_MEDIUM},
+        {"name": "MIT Sloan Sports Analytics", "url": "https://www.sloansportsconference.com/research", "domain": "industry_trends", "priority": PRIORITY_MEDIUM},
+        {"name": "TechCrunch Sports Tech", "url": "https://techcrunch.com/tag/sports-tech/", "domain": "competitor_analysis", "priority": PRIORITY_MEDIUM},
     ],
     "design": [
         {"name": "WCAG Updates", "url": "https://www.w3.org/WAI/news/", "domain": "wcag_updates", "priority": PRIORITY_HIGH},

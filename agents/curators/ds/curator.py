@@ -1,19 +1,20 @@
 """DS domain knowledge curator"""
-import os, sys, argparse, json, datetime, urllib.request
+import os, sys, argparse, datetime, urllib.request
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
-from knowledge.knowledge_base import store_knowledge, PRIORITY_HIGH, PRIORITY_CRITICAL, PRIORITY_MEDIUM, PRIORITY_LOW
+from knowledge.knowledge_base import store_knowledge, PRIORITY_HIGH, PRIORITY_MEDIUM, PRIORITY_LOW
 
 SOURCES = [
-    {"name": "arXiv Soccer Analytics", "url": "https://export.arxiv.org/search/?searchtype=all&query=soccer+expected+goals+machine+learning&start=0", "domain": "xg_modeling", "priority": PRIORITY_HIGH},
-    {"name": "arXiv Sports Prediction", "url": "https://export.arxiv.org/search/?searchtype=all&query=sports+betting+prediction+model&start=0", "domain": "sports_betting_models", "priority": PRIORITY_MEDIUM},
-    {"name": "StatsBomb Open Data", "url": "https://statsbomb.com/articles/", "domain": "xg_modeling", "priority": PRIORITY_HIGH},
+    {"name": "arXiv Soccer Analytics RSS", "url": "https://arxiv.org/search/?searchtype=all&query=soccer+xG+expected+goals&start=0&order=-announced_date_first", "domain": "xg_modeling", "priority": PRIORITY_HIGH},
+    {"name": "StatsBomb Articles", "url": "https://statsbomb.com/articles/", "domain": "xg_modeling", "priority": PRIORITY_HIGH},
     {"name": "Open-Meteo Docs", "url": "https://open-meteo.com/en/docs", "domain": "data_providers", "priority": PRIORITY_HIGH},
     {"name": "Football Data API", "url": "https://www.football-data.org/documentation/quickstart", "domain": "data_providers", "priority": PRIORITY_MEDIUM},
     {"name": "Scikit-learn Releases", "url": "https://scikit-learn.org/stable/whats_new.html", "domain": "ml_techniques", "priority": PRIORITY_LOW},
+    {"name": "WC2026 FIFA Updates", "url": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/news", "domain": "xg_modeling", "priority": PRIORITY_HIGH},
+    {"name": "Sports Reference Soccer", "url": "https://fbref.com/en/", "domain": "soccer_analytics", "priority": PRIORITY_MEDIUM},
 ]
 
-def fetch_and_store(source: dict, topic: str = None) -> int:
+def fetch_and_store(source, topic=None):
     try:
         from html.parser import HTMLParser
         class TextExtractor(HTMLParser):
@@ -21,31 +22,21 @@ def fetch_and_store(source: dict, topic: str = None) -> int:
                 super().__init__()
                 self.text = []
             def handle_data(self, data):
-                if data.strip():
-                    self.text.append(data.strip())
-            def get_text(self):
-                return " ".join(self.text[:150])
-
-        req = urllib.request.Request(
-            source["url"],
-            headers={"User-Agent": "Mozilla/5.0 Protean-Pursuits-Training-Bot/1.0"}
-        )
+                if data.strip(): self.text.append(data.strip())
+            def get_text(self): return " ".join(self.text[:150])
+        req = urllib.request.Request(source["url"],
+            headers={"User-Agent": "Mozilla/5.0 (compatible; research-bot/1.0)"})
         with urllib.request.urlopen(req, timeout=15) as resp:
             html = resp.read().decode("utf-8", errors="ignore")
-
         parser = TextExtractor()
         parser.feed(html)
         text = parser.get_text()
-        if len(text) < 50:
-            return 0
-
-        store_knowledge(
-            team="ds", domain=source["domain"],
+        if len(text) < 50: return 0
+        store_knowledge(team="ds", domain=source["domain"],
             content=text[:2000], source=source["name"],
             title=f"{source['name']} — {datetime.date.today()}",
             priority=source["priority"],
-            metadata={"url": source["url"], "fetched_at": datetime.datetime.utcnow().isoformat()}
-        )
+            metadata={"url": source["url"], "fetched_at": datetime.datetime.utcnow().isoformat()})
         print(f"  ✅ {source['name']}: stored")
         return 1
     except Exception as e:

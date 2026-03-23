@@ -9,7 +9,7 @@ TEAM = "marketing"
 SOURCES_MAP = {
     "marketing": [
         {"name": "Meta Ad Policies", "url": "https://www.facebook.com/policies/ads/", "domain": "platform_policies", "priority": PRIORITY_HIGH},
-        {"name": "Google Gambling Ads", "url": "https://support.google.com/adspolicy/answer/6023245", "domain": "gambling_ad_regulation", "priority": PRIORITY_HIGH},
+        {"name": "Google Ads Gambling Policy", "url": "https://support.google.com/adspolicy/answer/6023246", "domain": "gambling_ad_regulation", "priority": PRIORITY_HIGH},
         {"name": "ASA CAP Gambling", "url": "https://www.asa.org.uk/type/non_broadcast/code_section/16.html", "domain": "gambling_ad_regulation", "priority": PRIORITY_HIGH},
         {"name": "Marketing Week", "url": "https://www.marketingweek.com/", "domain": "industry_news", "priority": PRIORITY_LOW},
     ],
