@@ -39,23 +39,47 @@ if _TRAINING_TEAM_PATH not in sys.path:
 def inject_context(team: str, task_description: str,
                    domains: list = None,
                    max_items: int = 8,
-                   min_priority: str = None) -> str:
+                   min_priority: str = None,
+                   project: str = None) -> str:
     """
     PUSH: Prepend relevant knowledge context to a task description.
 
     Called by agent orchestrators before creating Task objects.
     The agent sees the knowledge block at the top of its instructions.
 
+    If `project` is passed, the project's scoped collections are
+    queried alongside the team's. Unknown / unregistered projects are
+    warned to stdout and the call falls back to team-only context
+    (per Day 4 decision 3).
+
     Returns the task_description with knowledge block prepended.
     If the knowledge base is unavailable, returns task_description unchanged.
     """
     try:
-        from knowledge.knowledge_base import build_context_block
+        from knowledge.knowledge_base import (
+            build_context_block,
+            normalize_project_slug,
+            PROJECT_DOMAINS,
+        )
+
+        resolved_project = None
+        if project:
+            candidate = normalize_project_slug(project)
+            if candidate in PROJECT_DOMAINS:
+                resolved_project = candidate
+            else:
+                print(
+                    f"⚠️  RAG inject: unknown project {project!r} "
+                    f"(normalized to {candidate!r}). Falling back to "
+                    f"team-only context."
+                )
+
         context_block = build_context_block(
             team=team,
             task_description=task_description,
             domains=domains,
-            max_items=max_items
+            max_items=max_items,
+            project=resolved_project,
         )
         if context_block:
             return f"{context_block}\n{task_description}"
