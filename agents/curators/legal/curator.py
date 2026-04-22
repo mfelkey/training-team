@@ -6,12 +6,17 @@ from knowledge.knowledge_base import propose_knowledge, PRIORITY_HIGH, PRIORITY_
 
 SOURCES = [
     {"name": "UK Gambling Commission News", "url": "https://www.gamblingcommission.gov.uk/news-action-and-statistics/news", "domain": "uk_gambling_regulation", "priority": PRIORITY_HIGH},
+    # FIXME: URL 404s — FCA restructured. Find new /news-and-publications location. See TODO_URLS.md.
     {"name": "FCA Press Releases", "url": "https://www.fca.org.uk/news/press-releases", "domain": "financial_promotion", "priority": PRIORITY_HIGH},
     {"name": "ICO News", "url": "https://ico.org.uk/about-the-ico/media-centre/news-and-blogs/", "domain": "data_protection", "priority": PRIORITY_HIGH},
     {"name": "EDPB News", "url": "https://edpb.europa.eu/news/news_en", "domain": "data_protection", "priority": PRIORITY_MEDIUM},
     {"name": "CAP Code Gambling", "url": "https://www.asa.org.uk/codes-and-rulings/advertising-codes/non-broadcast-code.html", "domain": "uk_gambling_regulation", "priority": PRIORITY_HIGH},
+    # FIXME: 404 — IAGR news path no longer exists. See TODO_URLS.md.
     {"name": "IAGR Global Gambling", "url": "https://iagr.org/news/", "domain": "us_gambling_regulation", "priority": PRIORITY_MEDIUM},
-    {"name": "ACMA Gambling", "url": "https://www.acma.gov.au/gambling", "domain": "au_regulation", "priority": PRIORITY_MEDIUM},
+    # 2026-04-22: Updated URL (old /gambling path timed out). Verify next health-check.
+    {"name": "ACMA Gambling", "url": "https://www.acma.gov.au/about-online-gambling", "domain": "au_regulation", "priority": PRIORITY_MEDIUM},
+    # FIXME: 404 — GamblingCompliance URL appears to point at LCCP, not a news source.
+    # Needs replacement with an actual industry-news URL. See TODO_URLS.md.
     {"name": "GamblingCompliance", "url": "https://www.gamblingcommission.gov.uk/licensees-and-businesses/guide/page/licence-conditions-and-codes-of-practice", "domain": "uk_gambling_regulation", "priority": PRIORITY_HIGH},
 ]
 

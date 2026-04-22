@@ -9,13 +9,16 @@ TEAM = "finance"
 SOURCES = [
     {"name": "SEC EDGAR Filings", "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent", "domain": "sec_filings", "priority": PRIORITY_HIGH},
     {"name": "SEC Press Releases", "url": "https://www.sec.gov/news/pressreleases", "domain": "sec_filings", "priority": PRIORITY_MEDIUM},
+    # FIXME: 403 — FASB bot-blocks our User-Agent. See TODO_URLS.md.
     {"name": "FASB News", "url": "https://www.fasb.org/page/pagecontent?pageId=/news/current.html", "domain": "fasb_standards", "priority": PRIORITY_MEDIUM},
     {"name": "IRS Newsroom", "url": "https://www.irs.gov/newsroom", "domain": "tax_updates", "priority": PRIORITY_MEDIUM},
     {"name": "Bloomberg Tax", "url": "https://news.bloombergtax.com/daily-tax-report/feed", "domain": "tax_updates", "priority": PRIORITY_LOW},
+    # FIXME: 401 — Reuters requires paid subscription auth. See TODO_URLS.md.
     {"name": "Reuters Finance", "url": "https://www.reuters.com/business/finance/", "domain": "financial_news", "priority": PRIORITY_LOW},
     {"name": "SaaStr Blog", "url": "https://www.saastr.com/blog/", "domain": "saas_metrics", "priority": PRIORITY_LOW},
     {"name": "OpenView SaaS Metrics", "url": "https://openviewpartners.com/blog/", "domain": "saas_metrics", "priority": PRIORITY_LOW},
     {"name": "Stripe Blog", "url": "https://stripe.com/blog", "domain": "payment_processing", "priority": PRIORITY_MEDIUM},
+    # FIXME: 403 — Payments Dive bot-blocks our User-Agent. See TODO_URLS.md.
     {"name": "Payments Dive", "url": "https://www.paymentsdive.com/", "domain": "payment_processing", "priority": PRIORITY_LOW},
 ]
 
