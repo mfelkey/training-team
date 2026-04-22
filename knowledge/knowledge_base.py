@@ -142,6 +142,13 @@ TOP_LEVEL_DOMAINS = [
     "lessons_learned",
 ]
 
+# Sub-domains per top-level domain. Collection name becomes
+# {top_level}_{sub_domain}, e.g. 'lessons_learned_platform'.
+# Freshness reporting iterates this map to include top-level entries.
+TOP_LEVEL_SUB_DOMAINS = {
+    "lessons_learned": ["platform", "project"],
+}
+
 
 # ── Project registry ─────────────────────────────────────────────────────
 # Per-project collection layer. Collections are named {slug}_{domain}
@@ -455,6 +462,24 @@ def get_freshness_report() -> dict:
                 report[team][domain] = {"count": count, "latest": latest}
             except Exception:
                 report[team][domain] = {"count": 0, "latest": None}
+
+    # Top-level domains (cross-cutting collections like lessons_learned).
+    for top_name in TOP_LEVEL_DOMAINS:
+        report[top_name] = {}
+        for sub in TOP_LEVEL_SUB_DOMAINS.get(top_name, []):
+            try:
+                collection = client.get_collection(_collection_name(top_name, sub))
+                count = collection.count()
+                if count > 0:
+                    results = collection.get(limit=1,
+                        where={"team": top_name})
+                    latest = results["metadatas"][0]["stored_at"] \
+                        if results["metadatas"] else "unknown"
+                else:
+                    latest = None
+                report[top_name][sub] = {"count": count, "latest": latest}
+            except Exception:
+                report[top_name][sub] = {"count": 0, "latest": None}
 
     # Registered projects — same shape, different namespace.
     for slug, domains in PROJECT_DOMAINS.items():
