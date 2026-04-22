@@ -23,6 +23,9 @@ load_dotenv("config/.env")
 DB_PATH = os.getenv("KNOWLEDGE_DB_PATH",
                     os.path.expanduser("~/projects/protean-pursuits/teams/training-team/knowledge/db"))
 
+CANDIDATES_DIR = os.getenv("CANDIDATES_DIR",
+                           os.path.expanduser("~/projects/protean-pursuits/teams/training-team/knowledge/candidates"))
+
 # Priority levels for knowledge items
 PRIORITY_LOW      = "LOW"
 PRIORITY_MEDIUM   = "MEDIUM"
@@ -140,6 +143,53 @@ def store_knowledge(team: str, domain: str, content: str,
         metadatas=[meta]
     )
     return doc_id
+
+
+def _candidate_id(content: str, source: str) -> str:
+    """
+    Stable candidate ID — full sha256 of (source + content[:200]).
+    Distinct from the 16-char _doc_id to avoid any collision between
+    candidate filenames and ChromaDB document IDs.
+    """
+    return hashlib.sha256(f"{source}:{content[:200]}".encode()).hexdigest()
+
+
+def propose_knowledge(team: str, domain: str, content: str,
+                      source: str, title: str,
+                      priority: str = PRIORITY_MEDIUM,
+                      metadata: dict = None) -> str:
+    """
+    HITL-gated alternative to store_knowledge.
+
+    Writes a candidate JSON to CANDIDATES_DIR instead of upserting
+    directly to ChromaDB. The candidate must be approved via
+    scripts/approve_candidates.py before it becomes available to
+    agent RAG.
+
+    Returns the candidate_id (full sha256 hex, used as filename).
+    """
+    metadata = metadata or {}
+    Path(CANDIDATES_DIR).mkdir(parents=True, exist_ok=True)
+
+    cand_id = _candidate_id(content, source)
+    candidate = {
+        "candidate_id": cand_id,
+        "proposed_at":  datetime.utcnow().isoformat(),
+        "team":         team,
+        "domain":       domain,
+        "source":       source,
+        "title":        title,
+        "content":      content,
+        "priority":     priority,
+        "metadata":     metadata,
+        "status":       "pending",
+    }
+
+    out_path = Path(CANDIDATES_DIR) / f"{cand_id}.json"
+    with open(out_path, "w") as f:
+        json.dump(candidate, f, indent=2)
+
+    return cand_id
 
 
 def get_context(team: str, query: str,
