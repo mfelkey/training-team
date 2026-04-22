@@ -32,6 +32,11 @@ SOURCE_FETCH_CURATORS = [
     "strategy",
     "design",
     "qa",
+    # Day 5 additions
+    "finance",
+    "hr",
+    "video",
+    "sme",
 ]
 
 

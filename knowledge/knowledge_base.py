@@ -88,6 +88,48 @@ TEAM_DOMAINS = {
         "security_advisories",
         "performance_benchmarks",
     ],
+    # ── Day 5 additions ──────────────────────────────────────────────
+    "finance": [
+        "sec_filings",
+        "fasb_standards",
+        "tax_updates",
+        "financial_news",
+        "saas_metrics",
+        "payment_processing",
+    ],
+    "hr": [
+        "employment_law_us",
+        "employment_law_intl",
+        "compensation_benchmarks",
+        "benefits_updates",
+        "hr_tech",
+        "culture_research",
+    ],
+    "video": [
+        "platform_policies_video",
+        "ai_video_tools",
+        "content_guidelines",
+        "video_seo",
+        "advertising_standards_video",
+    ],
+    "sme": [
+        "sports_betting",
+        "world_football",
+        "nba_ncaa_basketball",
+        "nfl_ncaa_football",
+        "mlb",
+        "nhl_ncaa_hockey",
+        "mma",
+        "tennis",
+        "world_rugby",
+        "cricket",
+        "wnba_ncaa_womens_basketball",
+        "thoroughbred_horse_racing",
+        "harness_racing",
+        "mens_boxing",
+        "pga",
+        "lpga",
+    ],
 }
 
 
