@@ -13,6 +13,7 @@ e.g. legal_regulation, ds_xg_models, dev_frameworks
 import os
 import json
 import hashlib
+import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
@@ -98,6 +99,69 @@ TEAM_DOMAINS = {
 TOP_LEVEL_DOMAINS = [
     "lessons_learned",
 ]
+
+
+# ── Project registry ─────────────────────────────────────────────────────
+# Per-project collection layer. Collections are named {slug}_{domain}
+# following the same idiom as team collections, just in a separate
+# namespace. Projects register at spin-up time via register_project().
+#
+# Slugs are canonical (lowercase, underscores, no dashes). The
+# normalize_project_slug() helper auto-normalizes anything non-canonical
+# and logs a warning so humans never have to pre-format.
+PROJECT_DOMAINS: dict[str, list[str]] = {}
+
+# Default domains every project gets unless the caller overrides.
+# (Day 4 design decision A: fixed default set.)
+DEFAULT_PROJECT_DOMAINS = ["domain", "market"]
+
+_logger = logging.getLogger(__name__)
+
+
+def normalize_project_slug(raw: str) -> str:
+    """
+    Canonicalize a project name to a slug: lowercase, underscores,
+    alphanumerics only. Runs of non-alphanumerics collapse to a single
+    underscore; leading/trailing underscores are stripped.
+
+    Examples:
+        'ParallaxEdge'      -> 'parallaxedge'
+        'parallax-edge'     -> 'parallax_edge'
+        'PROJ-PARALLAXEDGE' -> 'proj_parallaxedge'
+        '  trim-me  '       -> 'trim_me'
+    """
+    import re
+    s = (raw or "").strip().lower()
+    # Replace any run of non-alphanumeric chars with a single underscore
+    s = re.sub(r"[^a-z0-9]+", "_", s)
+    return s.strip("_")
+
+
+def register_project(raw_name: str,
+                     domains: list = None) -> str:
+    """
+    Register a project in PROJECT_DOMAINS and return the canonical slug.
+
+    - Auto-normalizes raw_name to a slug; warns if normalization changed
+      the input (so humans can see when they should canonicalize upstream).
+    - Default domains: DEFAULT_PROJECT_DOMAINS (['domain', 'market']).
+    - Idempotent: registering the same project twice with the same
+      domain list is a no-op. A second call with a different list
+      replaces the stored list.
+    """
+    slug = normalize_project_slug(raw_name)
+    if slug != (raw_name or "").strip():
+        _logger.warning(
+            f"register_project: normalized {raw_name!r} -> {slug!r}"
+        )
+
+    if domains is None:
+        domains = list(DEFAULT_PROJECT_DOMAINS)
+    else:
+        domains = list(domains)
+
+    PROJECT_DOMAINS[slug] = domains
+    return slug
 
 
 def _get_chroma_client():
@@ -263,21 +327,37 @@ def get_context(team: str, query: str,
 
 def build_context_block(team: str, task_description: str,
                         domains: list = None,
-                        max_items: int = 8) -> str:
+                        max_items: int = 8,
+                        project: str = None) -> str:
     """
     Build a formatted context block to prepend to agent task prompts.
     This is the PUSH mechanism — called before every agent task.
 
+    If `project` is passed and registered in PROJECT_DOMAINS, project-
+    scoped collections are queried alongside the team's. Unknown
+    projects fall back silently to team-only (caller at the rag_inject
+    layer is responsible for warning humans).
+
     Returns a markdown-formatted string ready to inject into prompts.
     """
-    items = get_context(team, task_description, domains,
-                        n_results=max_items)
+    items = list(get_context(team=team, query=task_description,
+                             domains=domains, n_results=max_items))
+
+    if project and project in PROJECT_DOMAINS:
+        items.extend(get_context(
+            team=project,
+            query=task_description,
+            domains=PROJECT_DOMAINS[project],
+            n_results=max_items,
+        ))
+
     if not items:
         return ""
 
+    header_scope = f"{team} team" + (f" + {project} project" if project and project in PROJECT_DOMAINS else "")
     lines = [
         "## 📚 Knowledge Base Context",
-        f"*Relevant knowledge for {team} team — retrieved {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}*\n",
+        f"*Relevant knowledge for {header_scope} — retrieved {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}*\n",
     ]
 
     # Group by priority
@@ -312,16 +392,17 @@ def build_context_block(team: str, task_description: str,
 
 
 def get_freshness_report() -> dict:
-    """Return a report of knowledge freshness per team/domain."""
+    """Return a report of knowledge freshness per team/project/domain."""
     client = _get_chroma_client()
     report = {}
+
+    # Teams
     for team, domains in TEAM_DOMAINS.items():
         report[team] = {}
         for domain in domains:
             try:
                 collection = client.get_collection(_collection_name(team, domain))
                 count = collection.count()
-                # Get most recent item
                 if count > 0:
                     results = collection.get(limit=1,
                         where={"team": team})
@@ -332,6 +413,25 @@ def get_freshness_report() -> dict:
                 report[team][domain] = {"count": count, "latest": latest}
             except Exception:
                 report[team][domain] = {"count": 0, "latest": None}
+
+    # Registered projects — same shape, different namespace.
+    for slug, domains in PROJECT_DOMAINS.items():
+        report[slug] = {}
+        for domain in domains:
+            try:
+                collection = client.get_collection(_collection_name(slug, domain))
+                count = collection.count()
+                if count > 0:
+                    results = collection.get(limit=1,
+                        where={"team": slug})
+                    latest = results["metadatas"][0]["stored_at"] \
+                        if results["metadatas"] else "unknown"
+                else:
+                    latest = None
+                report[slug][domain] = {"count": count, "latest": latest}
+            except Exception:
+                report[slug][domain] = {"count": 0, "latest": None}
+
     return report
 
 
