@@ -7,6 +7,7 @@ from knowledge.knowledge_base import propose_knowledge, PRIORITY_HIGH, PRIORITY_
 TEAM = "video"
 
 SOURCES = [
+    # FIXME: 404 — YouTube channel URL format changed. Try /c/ or /user/ prefix. See TODO_URLS.md.
     {"name": "YouTube Creator Insider", "url": "https://www.youtube.com/@YouTubeCreatorInsider/videos", "domain": "platform_policies_video", "priority": PRIORITY_HIGH},
     {"name": "TikTok Newsroom", "url": "https://newsroom.tiktok.com/en-us/", "domain": "platform_policies_video", "priority": PRIORITY_HIGH},
     {"name": "Meta Transparency — Advertising", "url": "https://transparency.meta.com/policies/ad-standards/", "domain": "advertising_standards_video", "priority": PRIORITY_HIGH},
@@ -14,6 +15,7 @@ SOURCES = [
     {"name": "TikTok Community Guidelines", "url": "https://www.tiktok.com/community-guidelines/en/", "domain": "content_guidelines", "priority": PRIORITY_HIGH},
     {"name": "Runway News", "url": "https://runwayml.com/blog", "domain": "ai_video_tools", "priority": PRIORITY_MEDIUM},
     {"name": "Pika Labs News", "url": "https://pika.art/blog", "domain": "ai_video_tools", "priority": PRIORITY_MEDIUM},
+    # FIXME: 403 — openai.com/sora/ bot-blocks. See TODO_URLS.md.
     {"name": "OpenAI Sora Updates", "url": "https://openai.com/sora/", "domain": "ai_video_tools", "priority": PRIORITY_MEDIUM},
     {"name": "VidIQ YouTube SEO", "url": "https://vidiq.com/blog/", "domain": "video_seo", "priority": PRIORITY_LOW},
 ]

@@ -7,21 +7,24 @@ from knowledge.knowledge_base import propose_knowledge, PRIORITY_HIGH, PRIORITY_
 TEAM = "sme"
 
 SOURCES = [
+    # FIXME: returns 403 to our User-Agent. Important SME source. See TODO_URLS.md.
     {"name": "Legal Sports Report", "url": "https://www.legalsportsreport.com/news/", "domain": "sports_betting", "priority": PRIORITY_HIGH},
-    {"name": "Covers", "url": "https://www.covers.com/sports", "domain": "sports_betting", "priority": PRIORITY_LOW},
+    # Removed 2026-04-22: Covers /sports URL 404s and the site has restructured.
     {"name": "ESPN FC", "url": "https://www.espn.com/soccer/", "domain": "world_football", "priority": PRIORITY_MEDIUM},
     {"name": "Football Benchmark", "url": "https://www.footballbenchmark.com/library", "domain": "world_football", "priority": PRIORITY_LOW},
     {"name": "NBA.com News", "url": "https://www.nba.com/news", "domain": "nba_ncaa_basketball", "priority": PRIORITY_MEDIUM},
-    {"name": "NCAA MBB News", "url": "https://www.ncaa.com/news/basketball-men/d1", "domain": "nba_ncaa_basketball", "priority": PRIORITY_LOW},
+    # Removed 2026-04-22: NCAA MBB news URL 404s. NBA.com covers college in March.
     {"name": "NFL.com News", "url": "https://www.nfl.com/news/", "domain": "nfl_ncaa_football", "priority": PRIORITY_MEDIUM},
-    {"name": "NCAA FB News", "url": "https://www.ncaa.com/news/football/fbs", "domain": "nfl_ncaa_football", "priority": PRIORITY_LOW},
+    # Removed 2026-04-22: NCAA FB news URL 404s. Use ESPN or SI as replacement later.
     {"name": "MLB.com News", "url": "https://www.mlb.com/news", "domain": "mlb", "priority": PRIORITY_MEDIUM},
     {"name": "NHL.com News", "url": "https://www.nhl.com/news", "domain": "nhl_ncaa_hockey", "priority": PRIORITY_MEDIUM},
     {"name": "MMA Junkie", "url": "https://mmajunkie.usatoday.com/", "domain": "mma", "priority": PRIORITY_MEDIUM},
     {"name": "ATP Tour News", "url": "https://www.atptour.com/en/news", "domain": "tennis", "priority": PRIORITY_MEDIUM},
     {"name": "World Rugby News", "url": "https://www.world.rugby/news", "domain": "world_rugby", "priority": PRIORITY_LOW},
+    # FIXME: returns 403. Major cricket source. See TODO_URLS.md.
     {"name": "ESPN Cricinfo", "url": "https://www.espncricinfo.com/", "domain": "cricket", "priority": PRIORITY_MEDIUM},
     {"name": "WNBA.com News", "url": "https://www.wnba.com/news/", "domain": "wnba_ncaa_womens_basketball", "priority": PRIORITY_MEDIUM},
+    # FIXME: returns 403. Key thoroughbred source. See TODO_URLS.md.
     {"name": "Paulick Report", "url": "https://paulickreport.com/news/", "domain": "thoroughbred_horse_racing", "priority": PRIORITY_MEDIUM},
     {"name": "Harness Racing Update", "url": "https://harnessracingupdate.com/", "domain": "harness_racing", "priority": PRIORITY_LOW},
     {"name": "BoxingScene", "url": "https://www.boxingscene.com/news", "domain": "mens_boxing", "priority": PRIORITY_MEDIUM},

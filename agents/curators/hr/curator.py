@@ -11,9 +11,11 @@ SOURCES = [
     {"name": "EEOC Newsroom", "url": "https://www.eeoc.gov/newsroom", "domain": "employment_law_us", "priority": PRIORITY_HIGH},
     {"name": "SHRM HR News", "url": "https://www.shrm.org/topics-tools/news", "domain": "employment_law_us", "priority": PRIORITY_MEDIUM},
     {"name": "EU-OSHA News", "url": "https://osha.europa.eu/en/highlights", "domain": "employment_law_intl", "priority": PRIORITY_MEDIUM},
+    # FIXME: returns 403 to our User-Agent — paywall/bot-block. See TODO_URLS.md.
     {"name": "ILO Newsroom", "url": "https://www.ilo.org/global/about-the-ilo/newsroom/news/lang--en/index.htm", "domain": "employment_law_intl", "priority": PRIORITY_MEDIUM},
     {"name": "Radford / Aon Benchmarks", "url": "https://radford.aon.com/insights", "domain": "compensation_benchmarks", "priority": PRIORITY_LOW},
-    {"name": "Payscale Compensation Today", "url": "https://www.payscale.com/compensation-today/", "domain": "compensation_benchmarks", "priority": PRIORITY_LOW},
+    # Removed 2026-04-22: Payscale Compensation Today URL returns 404 (site restructured).
+    # FIXME: URL 404s — search for new SHRM Benefits index. See TODO_URLS.md.
     {"name": "SHRM Benefits", "url": "https://www.shrm.org/topics-tools/tools/benefits", "domain": "benefits_updates", "priority": PRIORITY_MEDIUM},
     {"name": "HR Executive", "url": "https://hrexecutive.com/", "domain": "hr_tech", "priority": PRIORITY_LOW},
     {"name": "Gallup Workplace", "url": "https://www.gallup.com/workplace/", "domain": "culture_research", "priority": PRIORITY_LOW},
