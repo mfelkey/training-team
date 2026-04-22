@@ -18,6 +18,11 @@ Usage:
 
   # Show recent critical alerts
   python3.11 flows/training_flow.py --mode alerts --hours 48
+
+  # Lessons Learned ingest (Phase 2 Day 6+)
+  python3.11 flows/training_flow.py --mode ll \\
+      --ll-path ~/projects/protean-pursuits/docs/LESSONS_LEARNED.md \\
+      --source-type platform
 """
 
 import sys
@@ -33,12 +38,19 @@ from agents.orchestrator.orchestrator import (
 from knowledge.knowledge_base import TEAM_DOMAINS, get_critical_alerts
 
 
+# Default LL source paths (used when --ll-path is omitted).
+# The umbrella docs/LESSONS_LEARNED.md is the authoritative platform
+# lessons file; agents/curators/lessons_learned/curator.py handles
+# parsing + HITL candidate proposal.
+_DEFAULT_PLATFORM_LL = Path(__file__).resolve().parents[3] / "docs" / "LESSONS_LEARNED.md"
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Protean Pursuits — Training Team"
     )
     parser.add_argument("--mode",
-        choices=["full", "team", "on_demand", "status", "alerts"],
+        choices=["full", "team", "on_demand", "status", "alerts", "ll"],
         required=True)
     parser.add_argument("--team", type=str, default=None,
         help=f"Team to update. Options: {list(TEAM_DOMAINS.keys())}")
@@ -46,6 +58,12 @@ if __name__ == "__main__":
         help="Specific topic for on-demand refresh")
     parser.add_argument("--hours", type=int, default=24,
         help="Hours to look back for alerts (default: 24)")
+    parser.add_argument("--ll-path", type=str, default=None,
+        help="Path to LESSONS_LEARNED.md (ll mode only; defaults to "
+             "the umbrella's docs/LESSONS_LEARNED.md)")
+    parser.add_argument("--source-type", choices=["platform", "project"],
+        default="platform",
+        help="Source type tag for ll candidates (default: platform)")
     args = parser.parse_args()
 
     if args.mode == "full":
@@ -78,3 +96,15 @@ if __name__ == "__main__":
 
     elif args.mode == "alerts":
         show_alerts(hours=args.hours)
+
+    elif args.mode == "ll":
+        # Phase 2 Day 6: Lessons Learned ingest.
+        # Parses the LL file, proposes one candidate per entry via the
+        # HITL gate. Entries are not auto-approved — scripts/approve_candidates.py
+        # must be run to flush approved LLs into ChromaDB.
+        from agents.curators.lessons_learned.curator import run as run_ll
+        ll_path = Path(args.ll_path) if args.ll_path else _DEFAULT_PLATFORM_LL
+        print(f"\n🎓 LL Ingest — {args.source_type} — {ll_path}")
+        n = run_ll(ll_path=ll_path, source_type=args.source_type)
+        print(f"✅ LL ({args.source_type}): {n} entries proposed "
+              f"(pending HITL approval via scripts/approve_candidates.py)")
