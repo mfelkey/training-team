@@ -98,8 +98,12 @@ def test_curator_proposes_one_candidate_per_entry(clean_env, monkeypatch):
     monkeypatch.setattr(curator, "propose_knowledge", spy)
 
     n = curator.run(ll_path=REAL_LL_PATH, source_type="platform")
-    assert n == 1, f"expected 1 proposed candidate, got {n}"
-    assert len(calls) == 1
+    # The real file accumulates LLs over time (LL-040, LL-041, ...).
+    # Assert at least one was proposed and LL-040 is among the calls.
+    assert n >= 1, f"expected at least 1 proposed candidate, got {n}"
+    assert len(calls) == n
+    ll_ids = [c["metadata"]["ll_id"] for c in calls]
+    assert "LL-040" in ll_ids
 
 
 def test_curator_candidate_has_expected_shape(clean_env):
@@ -118,11 +122,19 @@ def test_curator_candidate_has_expected_shape(clean_env):
     importlib.reload(curator)
 
     n = curator.run(ll_path=REAL_LL_PATH, source_type="platform")
-    assert n == 1
+    assert n >= 1
 
+    # Find the LL-040 candidate specifically (the file may contain other LLs).
     files = list(clean_env["candidates"].glob("*.json"))
-    assert len(files) == 1
-    data = json.loads(files[0].read_text())
+    assert len(files) == n
+    ll040_data = None
+    for f in files:
+        d = json.loads(f.read_text())
+        if d.get("metadata", {}).get("ll_id") == "LL-040":
+            ll040_data = d
+            break
+    assert ll040_data is not None, "no LL-040 candidate found on disk"
+    data = ll040_data
 
     # The top-level domain sentinel — not a {team}_{domain} collection.
     assert data["team"] == "lessons_learned"

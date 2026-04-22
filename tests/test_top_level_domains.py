@@ -45,3 +45,42 @@ def test_top_level_domain_uses_bare_collection_name(clean_env):
     # "lessons_learned_platform", which keeps the {team}_{domain} idiom.
     name = _collection_name("lessons_learned", "platform")
     assert name == "lessons_learned_platform"
+
+
+def test_freshness_report_includes_top_level_domains(clean_env):
+    """
+    get_freshness_report() must include every TOP_LEVEL_DOMAIN alongside
+    teams + projects, with its sub-domains from TOP_LEVEL_SUB_DOMAINS.
+    """
+    import importlib
+    if "knowledge.knowledge_base" in sys.modules:
+        importlib.reload(sys.modules["knowledge.knowledge_base"])
+    from knowledge.knowledge_base import (
+        get_freshness_report,
+        TOP_LEVEL_DOMAINS,
+        TOP_LEVEL_SUB_DOMAINS,
+    )
+
+    report = get_freshness_report()
+    for top_name in TOP_LEVEL_DOMAINS:
+        assert top_name in report, (
+            f"top-level domain {top_name} missing from freshness report"
+        )
+        expected_subs = set(TOP_LEVEL_SUB_DOMAINS.get(top_name, []))
+        assert set(report[top_name].keys()) == expected_subs, (
+            f"{top_name} sub-domains mismatch: "
+            f"expected {expected_subs}, got {set(report[top_name].keys())}"
+        )
+
+
+def test_top_level_sub_domains_is_importable(clean_env):
+    """TOP_LEVEL_SUB_DOMAINS map must exist as a public symbol."""
+    import importlib
+    if "knowledge.knowledge_base" in sys.modules:
+        importlib.reload(sys.modules["knowledge.knowledge_base"])
+    from knowledge.knowledge_base import TOP_LEVEL_SUB_DOMAINS
+
+    assert isinstance(TOP_LEVEL_SUB_DOMAINS, dict)
+    assert "lessons_learned" in TOP_LEVEL_SUB_DOMAINS
+    assert "platform" in TOP_LEVEL_SUB_DOMAINS["lessons_learned"]
+    assert "project" in TOP_LEVEL_SUB_DOMAINS["lessons_learned"]
