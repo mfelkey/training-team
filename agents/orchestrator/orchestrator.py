@@ -159,7 +159,7 @@ def run_full_refresh(teams: list = None) -> dict:
     log_path = TRAINING_TEAM_PATH / "logs" / f"refresh_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.json"
     log_path.parent.mkdir(exist_ok=True)
     with open(log_path, "w") as f:
-        json.dump(summary, f, indent=2)
+        json.dump(summary, f, indent=2, default=str)
 
     print(f"\n✅ Refresh complete — {completed}/{len(results)} teams updated")
     if alerts:
