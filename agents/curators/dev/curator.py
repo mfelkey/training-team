@@ -2,7 +2,7 @@
 import os, sys, argparse, json, datetime, urllib.request
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
-from knowledge.knowledge_base import store_knowledge, PRIORITY_HIGH, PRIORITY_CRITICAL, PRIORITY_MEDIUM, PRIORITY_LOW
+from knowledge.knowledge_base import propose_knowledge, PRIORITY_HIGH, PRIORITY_CRITICAL, PRIORITY_MEDIUM, PRIORITY_LOW
 
 SOURCES = [
     {"name": "FastAPI Releases", "url": "https://github.com/tiangolo/fastapi/releases.atom", "domain": "framework_releases", "priority": PRIORITY_HIGH},
@@ -38,14 +38,14 @@ def fetch_and_store(source: dict, topic: str = None) -> int:
         text = parser.get_text()
         if len(text) < 50:
             return 0
-        store_knowledge(
+        propose_knowledge(
             team="dev", domain=source["domain"],
             content=text[:2000], source=source["name"],
             title=f"{source['name']} — {datetime.date.today()}",
             priority=source["priority"],
             metadata={"url": source["url"], "fetched_at": datetime.datetime.utcnow().isoformat()}
         )
-        print(f"  ✅ {source['name']}: stored")
+        print(f"  ✅ {source['name']}: proposed (pending HITL approval)")
         return 1
     except Exception as e:
         print(f"  ⚠️  {source['name']}: {e}")
@@ -57,4 +57,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
     print(f"\n🎓 Dev Curator — {datetime.date.today()}")
     stored = sum(fetch_and_store(s, args.topic) for s in SOURCES)
-    print(f"✅ Dev: {stored}/{len(SOURCES)} sources stored")
+    print(f"✅ Dev: {stored}/{len(SOURCES)} sources proposed (pending HITL approval)")
