@@ -90,6 +90,16 @@ TEAM_DOMAINS = {
 }
 
 
+# Top-level domains — collections that are NOT partitioned by team.
+# These are queried by every agent by default and hold cross-cutting
+# knowledge like lessons-learned entries and system updates.
+# Collection names follow the same {name}_{subtype} idiom so the
+# existing _collection_name() helper keeps working.
+TOP_LEVEL_DOMAINS = [
+    "lessons_learned",
+]
+
+
 def _get_chroma_client():
     """Get or create ChromaDB client."""
     try:
