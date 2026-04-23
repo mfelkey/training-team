@@ -11,6 +11,9 @@ SOURCES = [
     {"name": "Football Data API", "url": "https://www.football-data.org/documentation/quickstart", "domain": "data_providers", "priority": PRIORITY_MEDIUM},
     {"name": "Scikit-learn Releases", "url": "https://scikit-learn.org/stable/whats_new.html", "domain": "ml_techniques", "priority": PRIORITY_LOW},
     {"name": "WC2026 FIFA Updates", "url": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/news", "domain": "xg_modeling", "priority": PRIORITY_HIGH},
+    {"name": "Scikit-learn Calibration Docs", "url": "https://scikit-learn.org/stable/modules/calibration.html", "domain": "ml_techniques", "priority": PRIORITY_HIGH},
+    {"name": "NannyML Docs", "url": "https://www.nannyml.com/", "domain": "ml_techniques", "priority": PRIORITY_MEDIUM},
+    {"name": "Evidently AI Docs", "url": "https://www.evidentlyai.com/", "domain": "ml_techniques", "priority": PRIORITY_MEDIUM},
     # FIXME: 403 — fbref.com bot-blocks our User-Agent. See TODO_URLS.md.
     {"name": "Sports Reference Soccer", "url": "https://fbref.com/en/", "domain": "soccer_analytics", "priority": PRIORITY_MEDIUM},
 ]
